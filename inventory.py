@@ -9,7 +9,7 @@ def get_inventory(parent_id, is_org=True):
     client = asset_v1.AssetServiceClient()
     
     # Definimos el alcance: organization/123 o projects/my-project
-    scope = f"organizations/{parent_id}" if is_org else f"projects/{parent_id}"
+    scope = f"organizations/{821680696172}" if is_org else f"projects/{parent_id}"
     
     # Tipos de activos que queremos auditar por ahora
     asset_types = [
