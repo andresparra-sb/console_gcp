@@ -52,7 +52,7 @@ def export_inventory_to_csv(parent_id, filename="inventario_gobierno.csv"):
         print(f"❌ Error al generar inventario: {e}")
 
 if __name__ == "__main__":
-    ORG_ID = os.getenv("GCP_ORG_ID")
+    ORG_ID = os.getenv("821680696172")
     if ORG_ID:
         export_inventory_to_csv(ORG_ID)
     else:
