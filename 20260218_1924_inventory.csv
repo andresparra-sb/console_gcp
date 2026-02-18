@@ -1,0 +1,3 @@
+PROJECT_NAME,PROJECT_ID,SERVICE
+lab04-bucket-project-4c33afcc-f8ac-4c94-8d9,403537099668,storage.googleapis.com/Bucket
+lab04-ubuntu-alwaysfree,403537099668,compute.googleapis.com/Instance
