@@ -1,3 +1,7 @@
 # --- PROYECTOS A AUDITAR ---
-Lab 03,lab03-487819
-Lab 04,project-4c33afcc-f8ac-4c94-8d9
+# Formato: Nombre,ID
+sb-ecosistemaanalitico-lago,sb-ecosistemaanalitico-lago
+sb-ecosistemaanalitico-redes,sb-ecosistemaanalitico-redes
+sb-sandbox-patrimonial,sb-sandbox-actuaria-generales
+MiPresupuestoBolivar,mipresupuestobolivar
+sb-sandbox-usuarios,sb-sandbox-usuarios
