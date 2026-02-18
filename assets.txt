@@ -1,0 +1,5 @@
+compute.googleapis.com/Instance
+storage.googleapis.com/Bucket
+sqladmin.googleapis.com/Instance
+cloudfunctions.googleapis.com/CloudFunction
+container.googleapis.com/Cluster
