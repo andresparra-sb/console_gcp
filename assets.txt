@@ -1,5 +1,34 @@
+# --- COMPUTACIÓN ---
 compute.googleapis.com/Instance
+container.googleapis.com/Cluster
+cloudfunctions.googleapis.com/CloudFunction
+run.googleapis.com/Service
+appengine.googleapis.com/Application
+
+# --- ALMACENAMIENTO Y BASES DE DATOS ---
 storage.googleapis.com/Bucket
 sqladmin.googleapis.com/Instance
-cloudfunctions.googleapis.com/CloudFunction
-container.googleapis.com/Cluster
+spanner.googleapis.com/Instance
+redis.googleapis.com/Instance
+bigtableadmin.googleapis.com/Instance
+firestore.googleapis.com/Database
+
+# --- REDES Y SEGURIDAD ---
+compute.googleapis.com/Network
+compute.googleapis.com/Subnetwork
+compute.googleapis.com/Firewall
+compute.googleapis.com/ForwardingRule
+dns.googleapis.com/ManagedZone
+
+# --- ANALÍTICA Y MENSAJERÍA ---
+bigquery.googleapis.com/Dataset
+bigquery.googleapis.com/Table
+pubsub.googleapis.com/Topic
+pubsub.googleapis.com/Subscription
+dataproc.googleapis.com/Cluster
+
+# --- BALANCEADORES Y CLOUD RUN ---
+compute.googleapis.com/ForwardingRule
+run.googleapis.com/Service
+run.googleapis.com/Revision
+run.googleapis.com/Job
