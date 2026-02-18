@@ -1,11 +1,12 @@
 import os
 import csv
 import subprocess
+from datetime import datetime
 from google.cloud import asset_v1
 from google.cloud import resourcemanager_v3
 
 def load_asset_types(filename="assets.txt"):
-    """Lee los tipos de activos desde assets.txt"""
+    """Lee los tipos de activos desde un archivo externo"""
     asset_types = []
     try:
         with open(filename, "r") as f:
@@ -16,7 +17,6 @@ def load_asset_types(filename="assets.txt"):
         return asset_types
     except FileNotFoundError:
         print(f"⚠️ Archivo {filename} no encontrado. Usando lista por defecto.")
-        # Lista de respaldo por si el archivo no existe
         return ["compute.googleapis.com/Instance", "storage.googleapis.com/Bucket"]
 
 def get_organization_id():
@@ -46,12 +46,15 @@ def get_organization_id():
         print(f"❌ Error al detectar organización: {e}")
         return None
 
-def export_inventory_to_csv(org_id, filename="inventario_gobierno.csv"):
-    """Consulta los activos de la organización y genera el CSV usando assets.txt"""
+def export_inventory_to_csv(org_id):
+    """Consulta los activos y genera el CSV con formato: fecha_hora_inventory.csv"""
     client = asset_v1.AssetServiceClient()
     scope = f"organizations/{org_id}"
     
-    # IMPORTANTE: Ahora sí consumimos el archivo externo
+    # NUEVO FORMATO: AñoMesDia_HoraMinuto (20260218_1423)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"{timestamp}_inventory.csv"
+    
     asset_types = load_asset_types()
 
     try:
