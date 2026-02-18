@@ -1,34 +1,59 @@
 import os
-from google.cloud import asset_v1 # este error es normal
+import csv
+from google.cloud import asset_v1
 
-def get_inventory(parent_id, is_org=True):
-    """
-    Obtiene el inventario de activos.
-    parent_id: Puede ser el ID de la organización o de un proyecto.
-    """
+def export_inventory_to_csv(parent_id, filename="inventario_gobierno.csv"):
     client = asset_v1.AssetServiceClient()
+    scope = f"organizations/{821680696172}" # ID ORGANIZATION
     
-    # Definimos el alcance: organization/123 o projects/my-project
-    scope = f"organizations/{821680696172}" if is_org else f"projects/{parent_id}"
-    
-    # Tipos de activos que queremos auditar por ahora
+    # Tipos de activos a auditar
     asset_types = [
         "compute.googleapis.com/Instance",
-        "storage.googleapis.com/Bucket"
+        "storage.googleapis.com/Bucket",
+        "sqladmin.googleapis.com/Instance",
+        "cloudfunctions.googleapis.com/CloudFunction"
     ]
 
     try:
-        response = client.search_all_resources(request={"scope": scope, "asset_types": asset_types})
+        # Buscamos los recursos
+        response = client.search_all_resources(
+            request={
+                "scope": scope, 
+                "asset_types": asset_types
+            }
+        )
+
+        # Preparamos el archivo CSV
+        with open(filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            # Definimos las columnas que pediste
+            writer.writerow(["PROJECT_NAME", "PROJECT_ID", "SERVICE"])
+
+            count = 0
+            for asset in response:
+                # El campo 'project' suele venir como 'projects/12345' o 'projects/id-nombre'
+                # Extraemos solo el ID/Nombre del string
+                p_id_raw = asset.project.split('/')[-1]
+                
+                # En la API de Assets:
+                # display_name es el nombre del recurso (ej: vm-produccion)
+                # asset_type es el servicio (ej: compute.googleapis.com/Instance)
+                
+                writer.writerow([
+                    asset.display_name, # Usamos el nombre del recurso como nombre descriptivo
+                    p_id_raw,           # ID del proyecto
+                    asset.asset_type    # El servicio/tipo
+                ])
+                count += 1
         
-        print(f"\n--- REPORTE DE INVENTARIO: {scope} ---")
-        for asset in response:
-            print(f"[{asset.asset_type}] -> {asset.display_name} (Proyecto: {asset.project})")
-            
+        print(f"✅ Éxito: Se exportaron {count} recursos a {filename}")
+
     except Exception as e:
-        print(f"Error al acceder: {e}")
+        print(f"❌ Error al generar inventario: {e}")
 
 if __name__ == "__main__":
-    # Aquí puedes cambiar el ID por el tuyo
-    # Puedes pasarlo como variable de entorno por seguridad
-    ORG_ID = os.getenv("GCP_ORG_ID", "TU_ID_AQUI")
-    get_inventory(ORG_ID, is_org=True)
+    ORG_ID = os.getenv("GCP_ORG_ID")
+    if ORG_ID:
+        export_inventory_to_csv(ORG_ID)
+    else:
+        print("Error: Configura la variable GCP_ORG_ID (ej: export GCP_ORG_ID=821680696172)")
