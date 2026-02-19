@@ -3,12 +3,12 @@ import csv
 from datetime import datetime
 from google.cloud import asset_v1
 from google.cloud import bigquery
+from google.cloud import resourcemanager_v3  # Nueva librería necesaria
 
 # --- CONFIGURACIÓN ---
 BILLING_TABLE = "sb-ecosistemaanalitico-lago.daily_cost.gcp_billing_export_v1_01C684_6EFEC0_1C9725"
 
 def load_projects(filename="projects.txt", separator=","):
-    """Carga la lista de proyectos desde el archivo TXT"""
     projects = []
     try:
         with open(filename, "r") as f:
@@ -22,12 +22,24 @@ def load_projects(filename="projects.txt", separator=","):
         print(f"❌ Archivo {filename} no encontrado.")
         return []
 
+def get_project_creation_date(project_id):
+    """Obtiene la fecha de creación del proyecto"""
+    client = resourcemanager_v3.ProjectsClient()
+    try:
+        # El nombre del recurso debe ser 'projects/PROJECT_ID'
+        name = f"projects/{project_id}"
+        project = client.get_project(name=name)
+        # Formateamos la fecha a algo legible (YYYY-MM-DD)
+        return project.create_time.strftime('%Y-%m-%d')
+    except Exception as e:
+        print(f"  ⚠️ No se pudo obtener fecha para {project_id}")
+        return "N/A"
+
 def get_total_resources(project_id):
     """Cuenta recursos usando Cloud Asset API"""
     client = asset_v1.AssetServiceClient()
     scope = f"projects/{project_id}"
     try:
-        # Timeout de 60s para evitar errores de red en proyectos grandes
         response = client.search_all_resources(request={"scope": scope}, timeout=60)
         return sum(1 for _ in response)
     except Exception:
@@ -36,7 +48,6 @@ def get_total_resources(project_id):
 def get_project_costs(project_id):
     """Consulta costos históricos en BigQuery"""
     client = bigquery.Client()
-    # Meses solicitados: Enero 2026, Diciembre 2025, Noviembre 2025
     months = ["202601", "202512", "202511"]
     costs = {m: 0.0 for m in months}
 
@@ -58,10 +69,8 @@ def get_project_costs(project_id):
     return costs
 
 def generate_billing_report():
-    """Función principal que genera el archivo consolidado"""
     raw_data = load_projects()
-    if not raw_data:
-        return
+    if not raw_data: return
 
     projects_list = list(raw_data)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
@@ -72,15 +81,31 @@ def generate_billing_report():
     try:
         with open(filename, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            writer.writerow(["PROJECT_NAME", "TOTAL_RESOURCES", "COST_JAN_2026", "COST_DEC_2025", "COST_NOV_2025"])
+            # Nueva estructura de columnas
+            writer.writerow([
+                "PROJECT_NAME", 
+                "CREATED_AT",  # Nueva columna
+                "TOTAL_RESOURCES", 
+                "COST_JAN_2026", 
+                "COST_DEC_2025", 
+                "COST_NOV_2025"
+            ])
 
             for p_name, p_id in projects_list:
                 print(f"📊 Procesando: {p_name}...")
+                
+                # Paso 1: Fecha de creación
+                creation_date = get_project_creation_date(p_id)
+                
+                # Paso 2: Conteo de recursos
                 total_res = get_total_resources(p_id)
+                
+                # Paso 3: Costos
                 costs = get_project_costs(p_id)
                 
                 writer.writerow([
                     p_name, 
+                    creation_date, 
                     total_res, 
                     costs.get("202601", 0), 
                     costs.get("202512", 0), 
