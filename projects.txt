@@ -1,22 +1,16 @@
 # --- PROYECTOS A AUDITAR ---
 # Formato: Nombre,ID
-sb-sandbox-bancaseguros,sb-sandbox-bancaseguros
-sb-conglomerados-riesgos,sb-conglomerados-riesgos
-sb-sandbox-analiticadav,sb-sandbox-analiticadav
-sb-sandbox-actuariariesgos,sb-sandbox-actuaria
-sb-sandbox-auditoria,sb-sandbox-auditoria
-sb-sandbox-inteligencianegocio,sb-sandbox-inteligencia-negoci
+sb-prototipos-xops,sb-prototipos-xops
+sb-sandbox-bienestar,sb-sandbox-bienestar
+sb-magda-admin,sb-magda-admin
+sb-sandbox-solucionesbolivar,sb-sandbox-soluciones-bolivar
+sb-sandbox-patrimonial2,sb-sandbox-patrimonial2
+sb-ingestalago-dev,sb-ingestalago-dev
+sb-ga-ciencuadras,sb-ga-ciencuadras
+sb-operacional-zone,sb-operacional-zone
+sb-analitics-davivienda,sb-analitics-davivienda
 
 ```text
-#sb-prototipos-xops,sb-prototipos-xops
-#sb-sandbox-bienestar,sb-sandbox-bienestar
-#sb-magda-admin,sb-magda-admin
-#sb-sandbox-solucionesbolivar,sb-sandbox-soluciones-bolivar
-#sb-sandbox-patrimonial2,sb-sandbox-patrimonial2
-#sb-ingestalago-dev,sb-ingestalago-dev
-#sb-ga-ciencuadras,sb-ga-ciencuadras
-#sb-operacional-zone,sb-operacional-zone
-#sb-analitics-davivienda,sb-analitics-davivienda
 #sb-siem-conector,sb-siem-conector
 #sb-xops-prod,sb-xops-prod
 #Sandbox-Arquitectura,sandbox-arquitectura
