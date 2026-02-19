@@ -1,17 +1,13 @@
 # --- PROYECTOS A AUDITAR ---
 # Formato: Nombre,ID
-sb-sandbox-analitica,sb-sandbox-analitica
-sb-sandbox-planeacion,sb-sandbox-planeacion
-sb-sandbox-bcaempresasdav,sb-sandbox-bcaempresasdav
-sb-ecosistemaanalitico-idi,sb-ecosistemaanalitico-idi
+sb-sandbox-bancaseguros,sb-sandbox-bancaseguros
+sb-conglomerados-riesgos,sb-conglomerados-riesgos
+sb-sandbox-analiticadav,sb-sandbox-analiticadav
+sb-sandbox-actuariariesgos,sb-sandbox-actuaria
+sb-sandbox-auditoria,sb-sandbox-auditoria
+sb-sandbox-inteligencianegocio,sb-sandbox-inteligencia-negoci
 
 ```text
-#sb-sandbox-bancaseguros,sb-sandbox-bancaseguros
-#sb-conglomerados-riesgos,sb-conglomerados-riesgos
-#sb-sandbox-analiticadav,sb-sandbox-analiticadav
-#sb-sandbox-actuariariesgos,sb-sandbox-actuaria
-#sb-sandbox-auditoria,sb-sandbox-auditoria
-#sb-sandbox-inteligencianegocio,sb-sandbox-inteligencia-negoci
 #sb-prototipos-xops,sb-prototipos-xops
 #sb-sandbox-bienestar,sb-sandbox-bienestar
 #sb-magda-admin,sb-magda-admin
