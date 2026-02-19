@@ -32,3 +32,12 @@ compute.googleapis.com/ForwardingRule
 run.googleapis.com/Service
 run.googleapis.com/Revision
 run.googleapis.com/Job
+
+# --- SERVICIOS APIS ---
+# Este asset representa cada API o servicio que ha sido habilitado en el proyecto.
+serviceusage.googleapis.com/Service
+
+# Recursos de IA (Gemini / Vertex AI)
+aiplatform.googleapis.com/Endpoint
+aiplatform.googleapis.com/Index
+aiplatform.googleapis.com/Dataset
