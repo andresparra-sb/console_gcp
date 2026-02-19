@@ -1,3 +1,7 @@
 # --- PROYECTOS A AUDITAR ---
 # Formato: Nombre,ID
-sb-ecosistemaanalitico-lago,sb-ecosistemaanalitico-lago
+sb-ecosistemaanalitico-redes,sb-ecosistemaanalitico-redes
+sb-sandbox-patrimonial,sb-sandbox-actuaria-generales
+MiPresupuestoBolivar,mipresupuestobolivar
+sb-sandbox-usuarios,sb-sandbox-usuarios
+sb-sandbox-analitica,sb-sandbox-analitica
