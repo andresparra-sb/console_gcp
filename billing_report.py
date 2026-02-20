@@ -3,7 +3,8 @@ import csv
 from datetime import datetime
 from google.cloud import asset_v1
 from google.cloud import bigquery
-from google.cloud import resourcemanager_v3  # Nueva librería necesaria
+from google.cloud import resourcemanager_v3
+from google.cloud import billing_v1
 
 # --- CONFIGURACIÓN ---
 BILLING_TABLE = "sb-ecosistemaanalitico-lago.daily_cost.gcp_billing_export_v1_01C684_6EFEC0_1C9725"
@@ -22,21 +23,32 @@ def load_projects(filename="projects.txt", separator=","):
         print(f"❌ Archivo {filename} no encontrado.")
         return []
 
-def get_project_creation_date(project_id):
-    """Obtiene la fecha de creación del proyecto"""
+def get_billing_details(project_id):
+    """Obtiene el ID y el Nombre de la cuenta de facturación"""
+    client = billing_v1.CloudBillingClient()
+    try:
+        name = f"projects/{project_id}"
+        info = client.get_project_billing_info(name=name)
+        if info.billing_enabled:
+            # Obtenemos el ID de la cuenta
+            billing_id = info.billing_account_name.split('/')[-1]
+            # Consultamos el nombre amigable de esa cuenta
+            account_info = client.get_billing_account(name=f"billingAccounts/{billing_id}")
+            return account_info.display_name, billing_id
+        return "Facturación Desactivada", "N/A"
+    except Exception:
+        return "Sin Acceso", "N/A"
+
+def get_project_details(project_id):
     client = resourcemanager_v3.ProjectsClient()
     try:
-        # El nombre del recurso debe ser 'projects/PROJECT_ID'
         name = f"projects/{project_id}"
         project = client.get_project(name=name)
-        # Formateamos la fecha a algo legible (YYYY-MM-DD)
         return project.create_time.strftime('%Y-%m-%d')
-    except Exception as e:
-        print(f"  ⚠️ No se pudo obtener fecha para {project_id}")
+    except Exception:
         return "N/A"
 
 def get_total_resources(project_id):
-    """Cuenta recursos usando Cloud Asset API"""
     client = asset_v1.AssetServiceClient()
     scope = f"projects/{project_id}"
     try:
@@ -46,15 +58,13 @@ def get_total_resources(project_id):
         return 0
 
 def get_project_costs(project_id):
-    """Consulta costos históricos en BigQuery"""
     client = bigquery.Client()
     months = ["202601", "202512", "202511"]
     costs = {m: 0.0 for m in months}
-
     query = f"""
         SELECT 
             invoice.month as month, 
-            SUM(cost) as total_cost
+            ROUND(SUM(cost + (SELECT IFNULL(SUM(c.amount), 0) FROM UNNEST(credits) c)), 2) as total_cost
         FROM `{BILLING_TABLE}`
         WHERE project.id = '{project_id}'
         AND invoice.month IN ({','.join([f"'{m}'" for m in months])})
@@ -63,9 +73,9 @@ def get_project_costs(project_id):
     try:
         query_job = client.query(query)
         for row in query_job:
-            costs[row.month] = round(row.total_cost, 2)
-    except Exception as e:
-        print(f"  ⚠️ Error BigQuery para {project_id}: {e}")
+            costs[row.month] = row.total_cost
+    except Exception:
+        pass
     return costs
 
 def generate_billing_report():
@@ -74,17 +84,24 @@ def generate_billing_report():
 
     projects_list = list(raw_data)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-    filename = f"reporte_consolidado_costos_{timestamp}.csv"
+    
+    # --- RUTA SOLICITADA ---
+    output_dir = "./Reports/Billing"
+    os.makedirs(output_dir, exist_ok=True) # Crea la carpeta si no existe
+    filename = f"{output_dir}/reporte_multicuenta_{timestamp}.csv"
 
-    print(f"🚀 Iniciando reporte consolidado para {len(projects_list)} proyectos...")
+    print(f"🚀 Generando reporte consolidado en {filename}...")
 
     try:
         with open(filename, mode='w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            # Nueva estructura de columnas
+            # Nueva columna a la izquierda: BILLING_ACCOUNT_NAME
             writer.writerow([
+                "BILLING_ACCOUNT_NAME",
+                "BILLING_ACCOUNT_ID",
                 "PROJECT_NAME", 
-                "CREATED_AT",  # Nueva columna
+                "PROJECT_ID",
+                "CREATED_AT",
                 "TOTAL_RESOURCES", 
                 "COST_JAN_2026", 
                 "COST_DEC_2025", 
@@ -94,17 +111,16 @@ def generate_billing_report():
             for p_name, p_id in projects_list:
                 print(f"📊 Procesando: {p_name}...")
                 
-                # Paso 1: Fecha de creación
-                creation_date = get_project_creation_date(p_id)
-                
-                # Paso 2: Conteo de recursos
+                b_name, b_id = get_billing_details(p_id)
+                creation_date = get_project_details(p_id)
                 total_res = get_total_resources(p_id)
-                
-                # Paso 3: Costos
                 costs = get_project_costs(p_id)
                 
                 writer.writerow([
+                    b_name,
+                    b_id,
                     p_name, 
+                    p_id,
                     creation_date, 
                     total_res, 
                     costs.get("202601", 0), 
@@ -112,9 +128,9 @@ def generate_billing_report():
                     costs.get("202511", 0)
                 ])
 
-        print(f"✅ Reporte finalizado con éxito: {filename}")
+        print(f"✅ Reporte finalizado exitosamente.")
     except Exception as e:
-        print(f"❌ Error al generar el CSV: {e}")
+        print(f"❌ Error crítico: {e}")
 
 if __name__ == "__main__":
     generate_billing_report()

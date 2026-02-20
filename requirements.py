@@ -2,3 +2,4 @@
 google-cloud-asset
 google-cloud-resource-manager
 google-cloud-bigquery
+google-cloud-billing
